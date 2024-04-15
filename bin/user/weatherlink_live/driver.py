@@ -76,38 +76,43 @@ class WeatherlinkLiveDriver(AbstractDevice):
         # now resuming the driver.
         self._reset_data_count()
 
-        self._log_success("Entering driver loop")
-        while True:
-            self._check_no_data_count()
+        try:
+            self._log_success("Entering driver loop")
+            while True:
+                self._check_no_data_count()
 
-            try:
-                self.scheduler.raise_error()
-                self.poll_host.raise_error()
-                self.push_host.raise_error()
-            except Exception as e:
-                raise WeeWxIOError("Error while receiving or processing packets: %s" % repr(e)) from e
+                try:
+                    self.scheduler.raise_error()
+                    self.poll_host.raise_error()
+                    self.push_host.raise_error()
+                except Exception as e:
+                    raise WeeWxIOError("Error while receiving or processing packets: %s" % repr(e)) from e
 
-            log.debug("Waiting for new packet")
-            self.data_event.wait(5)  # do a check every 5 secs
-            self.data_event.clear()
+                log.debug("Waiting for new packet")
+                self.data_event.wait(5)  # do a check every 5 secs
+                self.data_event.clear()
 
-            emitted_poll_packet = False
-            emitted_push_packet = False
+                emitted_poll_packet = False
+                emitted_push_packet = False
 
-            while self.poll_host.packets:
-                self._log_success("Emitting poll packet", level=logging.INFO)
-                self._reset_data_count()
-                emitted_poll_packet = True
-                yield self.poll_host.packets.popleft()
+                while self.poll_host.packets:
+                    self._log_success("Emitting poll packet", level=logging.INFO)
+                    self._reset_data_count()
+                    emitted_poll_packet = True
+                    yield self.poll_host.packets.popleft()
 
-            while self.push_host.packets:
-                self._log_success("Emitting push (broadcast) packet", level=logging.INFO)
-                self._reset_data_count()
-                emitted_push_packet = True
-                yield self.push_host.packets.popleft()
+                while self.push_host.packets:
+                    self._log_success("Emitting push (broadcast) packet", level=logging.INFO)
+                    self._reset_data_count()
+                    emitted_push_packet = True
+                    yield self.push_host.packets.popleft()
 
-            if not emitted_poll_packet and not emitted_push_packet:
-                self._increase_no_data_count()
+                if not emitted_poll_packet and not emitted_push_packet:
+                    self._increase_no_data_count()
+
+        except WeeWxIOError as e:
+            self.closePort()
+            raise e
 
     def start(self):
         if self.is_running:
