@@ -126,7 +126,11 @@ class Scheduler(object):
 
         if self._tick_task_id is not None:
             log.debug("Cancelling tick task")
-            self._scheduler.cancel(self._tick_task_id)
+            try:
+                self._scheduler.cancel(self._tick_task_id)
+            except ValueError:
+                pass
+        self._tick_task_id = None
 
         if not self._scheduler.empty():
             raise ValueError("Scheduler did not cancel all task")
