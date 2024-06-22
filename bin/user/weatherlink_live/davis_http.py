@@ -41,7 +41,7 @@ def start_broadcast(host: str, duration, timeout: float = 5):
         except Exception as e:
             error = e
             log.error(e)
-            log.error("HTTP broadcast start request failed. Retry #%d follows shortly" % i)
+            log.error("HTTP broadcast start request failed. Retry #%d follows shortly" % (i + 1))
         time.sleep(2.5)
 
     if error is not None:
@@ -61,7 +61,7 @@ def request_current(host: str, timeout: float = 5):
         except Exception as e:
             error = e
             log.error(e)
-            log.error("HTTP conditions request failed. Retry #%d follows shortly" % i)
+            log.error("HTTP conditions request failed. Retry #%d follows shortly" % (i + 1))
         time.sleep(2.5)
 
     if error is not None:
