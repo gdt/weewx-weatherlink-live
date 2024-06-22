@@ -60,6 +60,12 @@ WLL_CONFIG = """
     # Accumulated by using last value
     [[rainSize]]
         extractor = last
+
+    # Measurement rainRate: Precipitation rate
+    # Accumulated by using maximum value
+    # for consistency with WeatherLink app/dashboard
+    [[rainRate]]
+        extractor = max
 """
 wll_config_dict = configobj.ConfigObj(StringIO(WLL_CONFIG))
 
