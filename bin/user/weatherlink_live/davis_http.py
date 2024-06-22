@@ -37,11 +37,18 @@ def start_broadcast(host: str, duration, timeout: float = 5):
         try:
             r = requests.get("http://%s:80/v1/real_time?duration=%d" % (host, duration), timeout=timeout)
             json = r.json()
-            return WlHttpBroadcastStartRequestPacket.try_create(json, host)
+            broadcast_start_packet = WlHttpBroadcastStartRequestPacket.try_create(json, host)
+
+            if i > 0:
+                log.error("Successfully sent broadcast start request after %d attempts" % (i + 1))
+            else:
+                log.debug("Sent broadcast start request")
+
+            return broadcast_start_packet
         except Exception as e:
             error = e
             log.error(e)
-            log.error("HTTP broadcast start request failed. Retry #%d follows shortly" % i)
+            log.error("HTTP broadcast start request failed. Retry #%d follows shortly" % (i + 1))
         time.sleep(2.5)
 
     if error is not None:
@@ -57,11 +64,18 @@ def request_current(host: str, timeout: float = 5):
         try:
             r = requests.get("http://%s:80/v1/current_conditions" % host, timeout=timeout)
             json = r.json()
-            return WlHttpConditionsRequestPacket.try_create(json, host)
+            conditions_packet = WlHttpConditionsRequestPacket.try_create(json, host)
+
+            if i > 0:
+                log.error("Successfully sent conditions request after %d attempts" % (i + 1))
+            else:
+                log.debug("Sent conditions request")
+
+            return conditions_packet
         except Exception as e:
             error = e
             log.error(e)
-            log.error("HTTP conditions request failed. Retry #%d follows shortly" % i)
+            log.error("HTTP conditions request failed. Retry #%d follows shortly" % (i + 1))
         time.sleep(2.5)
 
     if error is not None:

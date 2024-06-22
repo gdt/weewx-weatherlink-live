@@ -60,6 +60,12 @@ WLL_CONFIG = """
     # Accumulated by using last value
     [[rainSize]]
         extractor = last
+
+    # Measurement rainRate: Precipitation rate
+    # Accumulated by using maximum value
+    # for consistency with WeatherLink app/dashboard
+    [[rainRate]]
+        extractor = max
 """
 wll_config_dict = configobj.ConfigObj(StringIO(WLL_CONFIG))
 
@@ -68,7 +74,7 @@ class WeatherLinkLiveInstaller(ExtensionInstaller):
     def __init__(self):
         super(WeatherLinkLiveInstaller, self).__init__(
             name='weatherlink-live',
-            version="1.1.4",
+            version="1.1.5",
             description='WeeWX driver for Davis WeatherLink Live.',
             author="Michael Schantl",
             author_email="floss@schantl-lx.at",
